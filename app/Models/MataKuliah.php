@@ -1,0 +1,35 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class MataKuliah extends Model
+{
+    protected $table = 'mata_kuliah';
+
+    protected $fillable = [
+        'user_id',
+        'kode',
+        'nama',
+        'sks',
+        'semester',
+    ];
+
+    public function tugas(): HasMany
+    {
+        return $this->hasMany(Tugas::class);
+    }
+
+    public function nilai(): HasMany
+    {
+        return $this->hasMany(Nilai::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+}
