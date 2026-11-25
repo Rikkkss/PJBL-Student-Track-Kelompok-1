@@ -1053,5 +1053,32 @@
             flex-direction: column;
         }
     }
+    /* Memperbaiki ukuran ikon panah pagination */
+.grade-pagination nav svg {
+    width: 16px !important;
+    height: 16px !important;
+    max-width: 16px !important;
+    max-height: 16px !important;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Ukuran tombol pagination */
+.grade-pagination nav a,
+.grade-pagination nav span {
+    font-size: 13px;
+}
+
+/* Merapikan area pagination */
+.grade-pagination nav {
+    display: flex;
+    align-items: center;
+}
+
+.grade-pagination nav a,
+.grade-pagination nav span {
+    min-width: 38px;
+    min-height: 38px;
+}
 </style>
 @endpush
