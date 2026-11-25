@@ -41,7 +41,7 @@ class TugasController extends Controller
             'deskripsi' => 'nullable|string',
             'deadline' => 'required|date',
             'prioritas' => 'required|in:Rendah,Sedang,Tinggi',
-            'status' => 'required|in:Belum dikerjakan,Dikerjakan,Selesai',
+            'status' => 'required|in:Belum dikerjakan,Sedang dikerjakan,Selesai',
         ]);
 
         Tugas::create($data);
@@ -72,7 +72,7 @@ class TugasController extends Controller
             'deskripsi' => 'nullable|string',
             'deadline' => 'required|date',
             'prioritas' => 'required|in:Rendah,Sedang,Tinggi',
-            'status' => 'required|in:Belum dikerjakan,Dikerjakan,Selesai',
+            'status' => 'required|in:Belum dikerjakan,Sedang dikerjakan,Selesai',
         ]);
 
         $tugas->update($data);

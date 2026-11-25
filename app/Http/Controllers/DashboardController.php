@@ -5,40 +5,63 @@ namespace App\Http\Controllers;
 use App\Models\MataKuliah;
 use App\Models\Tugas;
 use App\Models\Nilai;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $user = $request->user();
+
+        // Admin melihat seluruh data.
+        // Mahasiswa hanya melihat data miliknya.
+        $queryMataKuliah = MataKuliah::query();
+        $queryTugas = Tugas::query();
+        $queryNilai = Nilai::query();
+
+        if (!$user->isAdmin()) {
+            $queryMataKuliah->where('user_id', $user->id);
+            $queryTugas->where('user_id', $user->id);
+            $queryNilai->where('user_id', $user->id);
+        }
+
         // Statistik mata kuliah
-        $totalMataKuliah = MataKuliah::count();
-        $totalSKS = MataKuliah::sum('sks');
+        $totalMataKuliah = (clone $queryMataKuliah)->count();
+        $totalSKS = (clone $queryMataKuliah)->sum('sks');
 
         // Statistik tugas
-        $totalTugas = Tugas::count();
+        $totalTugas = (clone $queryTugas)->count();
 
-        $tugasBelumDikerjakan = Tugas::where(
-            'status',
-            'Belum dikerjakan'
-        )->count();
+        $tugasBelumDikerjakan = (clone $queryTugas)
+            ->where('status', 'Belum dikerjakan')
+            ->count();
 
-        $tugasSelesai = Tugas::where(
-            'status',
-            'Selesai'
-        )->count();
+        $tugasSelesai = (clone $queryTugas)
+            ->where('status', 'Selesai')
+            ->count();
 
-        // Menghitung status tugas lainnya
         $tugasLainnya = max(
             0,
             $totalTugas - $tugasBelumDikerjakan - $tugasSelesai
         );
 
         // Statistik nilai
-        $rataRataNilai = Nilai::avg('nilai');
+        $rataRataNilai = (clone $queryNilai)->avg('nilai');
 
         // Grafik rata-rata nilai per mata kuliah
-        $mataKuliahDenganNilai = MataKuliah::whereHas('nilai')
-            ->withAvg('nilai', 'nilai')
+        $mataKuliahDenganNilai = (clone $queryMataKuliah)
+            ->whereHas('nilai', function ($query) use ($user) {
+                if (!$user->isAdmin()) {
+                    $query->where('user_id', $user->id);
+                }
+            })
+            ->withAvg([
+                'nilai' => function ($query) use ($user) {
+                    if (!$user->isAdmin()) {
+                        $query->where('user_id', $user->id);
+                    }
+                }
+            ], 'nilai')
             ->orderBy('nama')
             ->get();
 
@@ -55,7 +78,7 @@ class DashboardController extends Controller
             })
             ->values();
 
-        // Data grafik status tugas
+        // Grafik status tugas
         $labelGrafikTugas = [
             'Selesai',
             'Belum dikerjakan',
