@@ -928,40 +928,29 @@ class NilaiController extends Controller
 
 
 
-            // Semua enam komponen harus tersedia.
+            // Hitung nilai akhir dari komponen yang tersedia saja.
+            // Bobot komponen yang tersedia dinormalisasi agar totalnya menjadi 100%.
+            $totalBobotTersedia = 0.0;
+            $totalNilaiTertimbang = 0.0;
 
-            $lengkap = !in_array(null, $rataKomponen, true);
-
-
-
-            $nilaiAkhir = null;
-
-            $huruf = '-';
-
-            $bobot = null;
-
-
-
-            if ($lengkap) {
-
-                $nilaiAkhir = 0;
-
-
-
-                foreach ($bobotKomponen as $nama => $persentase) {
-
-                    $nilaiAkhir +=
-
+            foreach ($bobotKomponen as $nama => $persentase) {
+                if ($rataKomponen[$nama] !== null) {
+                    $totalNilaiTertimbang +=
                         $rataKomponen[$nama] * $persentase;
-
+                    $totalBobotTersedia += $persentase;
                 }
-
-
-
-                [$huruf, $bobot] = $this->konversiNilai($nilaiAkhir);
-
             }
 
+            // Minimal satu komponen nilai harus tersedia agar dapat dihitung.
+            $adaNilai = $totalBobotTersedia > 0;
+            $nilaiAkhir = null;
+            $huruf = '-';
+            $bobot = null;
+
+            if ($adaNilai) {
+                $nilaiAkhir = $totalNilaiTertimbang / $totalBobotTersedia;
+                [$huruf, $bobot] = $this->konversiNilai($nilaiAkhir);
+            }
 
 
             $hasil[] = [
@@ -978,7 +967,7 @@ class NilaiController extends Controller
 
                 'komponen' => $rataKomponen,
 
-                'lengkap' => $lengkap,
+                'lengkap' => $adaNilai,
 
                 'nilai_akhir' => $nilaiAkhir,
 
@@ -1212,7 +1201,7 @@ class NilaiController extends Controller
 
             $this->pdfText(
 
-                'Catatan: IPS hanya menghitung mata kuliah dengan enam komponen nilai lengkap. Dokumen ini merupakan transkrip simulasi StudentTrack, bukan dokumen akademik resmi.'
+                'Catatan: Nilai akhir dihitung dari komponen yang tersedia; bobot komponen yang tersedia dinormalisasi menjadi 100%. Mata kuliah tanpa nilai tidak dihitung. Dokumen ini merupakan transkrip simulasi StudentTrack, bukan dokumen akademik resmi.'
 
             )
 
@@ -1364,7 +1353,7 @@ class NilaiController extends Controller
 
             $this->pdfText(
 
-                'Catatan: IPK dihitung dari seluruh mata kuliah yang memiliki enam komponen nilai lengkap. Dokumen ini merupakan transkrip simulasi StudentTrack, bukan dokumen akademik resmi.'
+                'Catatan: IPK dihitung dari mata kuliah yang memiliki minimal satu komponen nilai. Bobot komponen yang tersedia dinormalisasi menjadi 100%. Dokumen ini merupakan transkrip simulasi StudentTrack, bukan dokumen akademik resmi.'
 
             )
 
