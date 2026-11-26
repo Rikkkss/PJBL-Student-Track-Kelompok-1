@@ -434,7 +434,7 @@ class NilaiController extends Controller
 
 
 
-        $filename = 'StudentTrack_Nilai\_' . now()->format('Ymd_His') . '.xlsx';
+        $filename = 'StudentTrack_Nilai_' . now()->format('Ymd_His') . '.xlsx';
 
 
 
